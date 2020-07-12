@@ -1,16 +1,20 @@
 <template>
   <div class="home">
     <v-container>
-      <v-row>
+      <v-row class="mt-2">
         <h1>Your Todos List</h1>
       </v-row>
-      <v-row>
+      <v-row class="mt-2">
         <v-btn
         class="primary"
-        type="submit"
+        @click.prevent="showModalAdd"
         >
         Add Todo
         </v-btn>
+      </v-row>
+      <v-row class="mt-2">
+        <span v-if="errorMessage" class="red--text">{{ errorMessage }}</span>
+        <span v-if="successMessage" class="green--text">{{ successMessage }}</span>
       </v-row>
       <v-row align-center>
         <v-simple-table>
@@ -23,9 +27,9 @@
               <th>Due Date </th>
               <th colspan="2">Action </th>
             </thead>
-            <tbody>
-              <tr v-for="todo in todos" :key="todo.id">
-                <td>{{todo.id}}</td>
+            <tbody v-if="todos.length">
+              <tr v-for="(todo, index) in todos" :key="todo.id">
+                <td>{{index+1}}</td>
                 <td>{{todo.title}}</td>
                 <td>{{todo.description}}</td>
                 <td>{{todo.status}}</td>
@@ -39,9 +43,14 @@
                 <td>
                   <v-btn
                   class="error"
-                  @click.prevent="deleteTodo"
+                  @click.prevent="deleteTodo(todo)"
                   >Delete</v-btn>
                 </td>
+              </tr>
+            </tbody>
+            <tbody v-if="!todos.length">
+              <tr>
+                <td colspan="8">Belum Menambahkan Todo</td>
               </tr>
             </tbody>
           </template>
@@ -52,22 +61,37 @@
         :todo="todo"
         @closeModal="closeModal"
       />
+      <ModalAddTodo
+        :dialogAdd="dialogAdd"
+        @closeModalAdd="closeModalAdd"
+      />
+      <ModalDeleteTodo
+        :dialogDelete="dialogDelete"
+        :todo="todo"
+        @closeModalDelete="closeModalDelete"
+      />
     </v-container>
   </div>
 </template>
 
 <script>
 import ModalEditTodo from '../components/ModalEditTodo.vue'
+import ModalAddTodo from '../components/ModalAddTodo.vue'
+import ModalDeleteTodo from '../components/ModalDeleteTodo.vue'
 
 export default {
   name: 'Home',
   components: {
-    ModalEditTodo
+    ModalEditTodo,
+    ModalAddTodo,
+    ModalDeleteTodo
   },
   data () {
     return {
       dialog: false,
-      todo: {}
+      todo: {},
+      dialogAdd: false,
+      dialogDelete: false
     }
   },
   methods: {
@@ -75,8 +99,21 @@ export default {
       this.dialog = true
       this.todo = todo
     },
+    deleteTodo (todo) {
+      this.dialogDelete = true
+      this.todo = todo
+    },
     closeModal () {
       this.dialog = false
+    },
+    showModalAdd () {
+      this.dialogAdd = true
+    },
+    closeModalAdd () {
+      this.dialogAdd = false
+    },
+    closeModalDelete () {
+      this.dialogDelete = false
     }
   },
   created () {
@@ -96,6 +133,12 @@ export default {
   computed: {
     todos () {
       return this.$store.state.todos
+    },
+    successMessage () {
+      return this.$store.state.successMessage
+    },
+    errorMessage () {
+      return this.$store.state.errorMessage
     }
   }
 }

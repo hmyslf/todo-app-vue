@@ -45,7 +45,7 @@
               v-if="loading"
             ></v-progress-circular>
         </v-form><br>
-        <!-- <span>Don't have an account? <router-link to="/register">Register</router-link></span> -->
+        <span>Don't have an account? <router-link to="/register">Register</router-link></span>
       </v-col>
     </v-row>
   </v-container>
